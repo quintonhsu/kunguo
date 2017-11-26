@@ -5,9 +5,30 @@
     <description></description>
     <link>http://localhost:4000/</link>
     <atom:link href="http://localhost:4000/feed.xml" rel="self" type="application/rss+xml"/>
-    <pubDate>Tue, 11 Apr 2017 19:10:47 +0800</pubDate>
-    <lastBuildDate>Tue, 11 Apr 2017 19:10:47 +0800</lastBuildDate>
+    <pubDate>Sun, 26 Nov 2017 11:25:00 +0800</pubDate>
+    <lastBuildDate>Sun, 26 Nov 2017 11:25:00 +0800</lastBuildDate>
     <generator>Jekyll v3.4.3</generator>
+    
+      <item>
+        <title>redis切换双机房平滑迁移方案你好test</title>
+        <description>
+如若转载，请说明出处! http://kunfire.com
+
+</description>
+        <pubDate>Sun, 23 Apr 2017 22:06:05 +0800</pubDate>
+        <link>http://localhost:4000/2017/04/23/codis-dual-datacenter/</link>
+        <guid isPermaLink="true">http://localhost:4000/2017/04/23/codis-dual-datacenter/</guid>
+        
+        <category>redis</category>
+        
+        <category>双机房</category>
+        
+        <category>平滑迁移</category>
+        
+        
+        <category>架构/解决方案</category>
+        
+      </item>
     
       <item>
         <title>前端如何写一个精确的倒计时</title>
@@ -258,37 +279,6 @@
         
         
         <category>JavaScript</category>
-        
-      </item>
-    
-      <item>
-        <title>对这个 jekyll 博客主题的改版和重构</title>
-        <description>
-本文主要说明对这个博客主题的改版和代码重构的过程。这个简洁高雅的博客主题受到了很多朋友的喜欢。在写第一版界面时，我对前端并不是很熟悉，对&lt;code class=&quot;highlighter-rouge&quot;&gt;Jekyll&lt;/code&gt;也不熟悉。现在距离当时也一年了，对自己当时写的代码也不太满意了，同时&lt;code class=&quot;highlighter-rouge&quot;&gt;Jekyll&lt;/code&gt;如今也已经升级了，目前最新版为3.1.2。因此我在临近毕业尚未入职前做一下博客主题的代码重构和改版吧。
-
-主要想做这些事情有：添加归档，添加标签，添加分类页面，主页显示文章摘要，代码去除 jQuery 和 BootStrap，优化移动端显示，将所有变量写入配置文件&lt;code class=&quot;highlighter-rouge&quot;&gt;_config.yml&lt;/code&gt;中等。再优化一些细节吧。希望更多人会喜欢。
-
-</description>
-        <pubDate>Sat, 12 Mar 2016 11:40:18 +0800</pubDate>
-        <link>http://localhost:4000/2016/03/12/jekyll-theme-version-2.0/</link>
-        <guid isPermaLink="true">http://localhost:4000/2016/03/12/jekyll-theme-version-2.0/</guid>
-        
-        <category>jekyll</category>
-        
-        <category>端口</category>
-        
-        <category>markdown</category>
-        
-        <category>Foxit</category>
-        
-        <category>RubyGems</category>
-        
-        <category>HTML</category>
-        
-        <category>CSS</category>
-        
-        
-        <category>jekyll</category>
         
       </item>
     
