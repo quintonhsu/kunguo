@@ -6,15 +6,15 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>hello jekyll!</title>
-    <meta name="description" content="当年创建 jekyll 时默认的一篇文章，没什么意义，我也一直没删除，留个纪念吧。">
+    <title>Dubbo控制台与zookeeper状态不符问题排查</title>
+    <meta name="description" content="刚到指标平台，遇到一个很奇怪的问题，在本机启了两个应用，gaea-web和gaea-service,相互之间通过dubbo通信，gaea-web是consumer，gaea-service是provider。为了防止其他机器干扰，两个应用的版本号都改成了1.0.0.kunxu，在调试PartnerAllocati...">
 
     <link rel="shortcut icon" href="/favicon.ico?" type="image/x-icon">
     <link rel="icon" href="/favicon.ico?" type="image/x-icon">
     <link rel="stylesheet" href="https://cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css">
     <link rel="stylesheet" href="https://at.alicdn.com/t/font_8v3czwksspqlg14i.css">
     <link rel="stylesheet" href="/css/main.css ">
-    <link rel="canonical" href="http://localhost:4000/2015/02/10/welcome-to-jekyll/">
+    <link rel="canonical" href="http://localhost:4000/2017/11/26/dubbo-zookeeper-problem/">
     <link rel="alternate" type="application/rss+xml" title="昆火" href="http://localhost:4000/feed.xml ">
 
 
@@ -43,18 +43,6 @@
     </script>
 
 
-
-<script type="text/x-mathjax-config">
-    MathJax.Hub.Config({
-    tex2jax: { inlineMath: [["$","$"],["\\(","\\)"]] },
-    "HTML-CSS": {
-      linebreaks: { automatic: true, width: "container" }
-    }
-});
-</script>
-<script type="text/javascript"
-  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
-</script>
 
 </head>
 
@@ -151,11 +139,11 @@
 
         <div class="page clearfix" post>
     <div class="left">
-        <h1>hello jekyll!</h1>
+        <h1>Dubbo控制台与zookeeper状态不符问题排查</h1>
         <div class="label">
 
             <div class="label-card">
-                <i class="fa fa-calendar"></i>2015-02-10
+                <i class="fa fa-calendar"></i>2017-11-26
             </div>
 
             <div class="label-card">
@@ -175,7 +163,7 @@
   <i class="fa fa-th-list"></i>
   
     
-        <a href="/category/#jekyll" title="Category: jekyll" rel="category">jekyll</a>
+        <a href="/category/#问题排查/解决方案" title="Category: 问题排查/解决方案" rel="category">问题排查/解决方案</a>
     
   
 
@@ -192,8 +180,14 @@
   <i class="fa fa-tags"></i>
   
     
-        <!--a href="/tag/#jekyll" title="Tag: jekyll" rel="tag">jekyll</a-->
-        <a href="/tag/#jekyll" title="Tag: jekyll" rel="tag">jekyll</a>
+        <!--a href="/tag/#dubbo" title="Tag: dubbo" rel="tag">dubbo</a-->
+        <a href="/tag/#dubbo" title="Tag: dubbo" rel="tag">dubbo</a>&nbsp;
+    
+        <!--a href="/tag/#zookeeper" title="Tag: zookeeper" rel="tag">zookeeper</a-->
+        <a href="/tag/#zookeeper" title="Tag: zookeeper" rel="tag">zookeeper</a>&nbsp;
+    
+        <!--a href="/tag/#znode" title="Tag: znode" rel="tag">znode</a-->
+        <a href="/tag/#znode" title="Tag: znode" rel="tag">znode</a>
     
   
 
@@ -204,28 +198,39 @@
         </div>
         <hr>
         <article itemscope itemtype="http://schema.org/BlogPosting">
-        <p>You are finding this post in your <code class="highlighter-rouge">_posts</code> directory. Go ahead and edit it and re-build the site to see your changes. You can rebuild the site in many different ways, but the most common way is to run <code class="highlighter-rouge">jekyll serve</code>, which launches a web server and auto-regenerates your site when a file is updated.</p>
+        <ul id="markdown-toc">
+  <li><a href="#解决" id="markdown-toc-解决">解决</a></li>
+  <li><a href="#结论" id="markdown-toc-结论">结论</a></li>
+</ul>
 
-<p>To add new posts, simply add a file in the <code class="highlighter-rouge">_posts</code> directory that follows the convention <code class="highlighter-rouge">YYYY-MM-DD-name-of-post.ext</code> and includes the necessary front matter. Take a look at the source for this post to get an idea about how it works.</p>
+<p>刚到指标平台，遇到一个很奇怪的问题，在本机启了两个应用，gaea-web和gaea-service,相互之间通过dubbo通信，gaea-web是consumer，gaea-service是provider。为了防止其他机器干扰，两个应用的版本号都改成了1.0.0.kunxu，在调试PartnerAllocationService接口调用时，debug始终不能进入provider，看了dubbo控制台，显示provider注册成功，一切都很正常，如下图：
+<img src="http://i4.bvimg.com/620202/1c61108b61e959e9.png" alt="Markdown" /></p>
 
-<p>Jekyll also offers powerful support for code snippets:</p>
+<p>看了日志信息如下：</p>
 
-<div class="language-ruby highlighter-rouge"><pre class="highlight"><code><span class="k">def</span> <span class="nf">print_hi</span><span class="p">(</span><span class="nb">name</span><span class="p">)</span>
-  <span class="nb">puts</span> <span class="s2">"Hi, </span><span class="si">#{</span><span class="nb">name</span><span class="si">}</span><span class="s2">"</span>
-<span class="k">end</span>
-<span class="n">print_hi</span><span class="p">(</span><span class="s1">'Tom'</span><span class="p">)</span>
-<span class="c1">#=&gt; prints 'Hi, Tom' to STDOUT.</span>
+<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="n">com</span><span class="o">.</span><span class="na">alibaba</span><span class="o">.</span><span class="na">dubbo</span><span class="o">.</span><span class="na">rpc</span><span class="o">.</span><span class="na">RpcException</span><span class="o">:</span> <span class="n">Forbid</span> <span class="n">consumer</span> <span class="n">xxx</span><span class="o">.</span><span class="na">xxx</span><span class="o">.</span><span class="mf">242.119</span> <span class="n">access</span> <span class="n">service</span> <span class="n">cn</span><span class="o">.</span><span class="na">fraudmetrix</span><span class="o">.</span><span class="na">gaea</span><span class="o">.</span><span class="na">service</span><span class="o">.</span><span class="na">indicatrix</span><span class="o">.</span><span class="na">intf</span><span class="o">.</span><span class="na">PartnerAllocationService</span> <span class="n">from</span> <span class="n">registry</span> <span class="n">xxx</span><span class="o">.</span><span class="na">xxx</span><span class="o">.</span><span class="mf">6.55</span><span class="o">:</span><span class="mi">2181</span> <span class="n">use</span> <span class="n">dubbo</span> <span class="n">version</span> <span class="mf">2.8</span><span class="o">.</span><span class="mi">4</span><span class="o">,</span> <span class="n">Please</span> <span class="n">check</span> <span class="n">registry</span> <span class="n">access</span> <span class="nf">list</span> <span class="o">(</span><span class="n">whitelist</span><span class="o">/</span><span class="n">blacklist</span><span class="o">).</span>
+        <span class="n">at</span> <span class="n">com</span><span class="o">.</span><span class="na">alibaba</span><span class="o">.</span><span class="na">dubbo</span><span class="o">.</span><span class="na">registry</span><span class="o">.</span><span class="na">integration</span><span class="o">.</span><span class="na">RegistryDirectory</span><span class="o">.</span><span class="na">doList</span><span class="o">(</span><span class="n">RegistryDirectory</span><span class="o">.</span><span class="na">java</span><span class="o">:</span><span class="mi">579</span><span class="o">)</span>
+        <span class="n">at</span> <span class="n">com</span><span class="o">.</span><span class="na">alibaba</span><span class="o">.</span><span class="na">dubbo</span><span class="o">.</span><span class="na">rpc</span><span class="o">.</span><span class="na">cluster</span><span class="o">.</span><span class="na">directory</span><span class="o">.</span><span class="na">AbstractDirectory</span><span class="o">.</span><span class="na">list</span><span class="o">(</span><span class="n">AbstractDirectory</span><span class="o">.</span><span class="na">java</span><span class="o">:</span><span class="mi">73</span><span class="o">)</span>
+        <span class="n">at</span> <span class="n">com</span><span class="o">.</span><span class="na">alibaba</span><span class="o">.</span><span class="na">dubbo</span><span class="o">.</span><span class="na">rpc</span><span class="o">.</span><span class="na">cluster</span><span class="o">.</span><span class="na">support</span><span class="o">.</span><span class="na">AbstractClusterInvoker</span><span class="o">.</span><span class="na">list</span><span class="o">(</span><span class="n">AbstractClusterInvoker</span><span class="o">.</span><span class="na">java</span><span class="o">:</span><span class="mi">260</span><span class="o">)</span>
 </code></pre>
 </div>
 
-<p>Check out the <a href="http://jekyllrb.com">Jekyll docs</a> for more info on how to get the most out of Jekyll. File all bugs/feature requests at <a href="https://github.com/jekyll/jekyll">Jekyll’s GitHub repo</a>. If you have questions, you can ask them on <a href="https://github.com/jekyll/jekyll-help">Jekyll’s dedicated Help repository</a>.</p>
+<p>zookeeper机器分别是xxx.xxx.6.55/xxx.xxx.6.56/xxx.xxx.6.57，其中56是leader，55/57是follower，我本地ip是xxx.xxx.242.119。</p>
 
-<p>Block Mathjax</p>
+<p>计费系统在之前也出现过几次访问55然后被拒的问题，所以开始以为是55这台follower不太稳定，可能没有同步leader的的znode数据，provider注册的节点没有及时同步到55。
+进入55去看节点数据，确实没有PartnerAllocationService节点，再进入56这台leader，居然也没有这个节点数据，如下图：
+<img src="http://i4.bvimg.com/620202/db3bbbe24ce20331.png" alt="Markdown" /></p>
 
-<script type="math/tex; mode=display">f(x) = ax + b</script>
+<p>所以判定该节点并没有注册成功，dubbo控制台显示所谓的注册成功，应该是错误的。</p>
 
-<p>Inline Mathjax $a \neq b$</p>
+<h1 id="解决">解决</h1>
 
+<p>重启provider节点，再查看55/56/57的节点数据，注册成功，如下图，dubbo控制台还是一如既往的注册成功状态。
+<img src="http://i4.bvimg.com/620202/1c61108b61e959e9.png" alt="Markdown" /></p>
+
+<h1 id="结论">结论</h1>
+
+<p>dubbo控制台在公司开发环境是有问题的，只能作为参考，不能尽信，控制台显示的不一定是真实的zk状态，不知生产环境会不会由此问题。</p>
 
         </article>
         <hr>
@@ -237,7 +242,7 @@
                 
                     
                 
-            
+                    
                 
                     
                 
@@ -245,10 +250,7 @@
                 
                     
                 
-            
-        
-            
-            
+                    
                 
                     
                 
@@ -256,50 +258,7 @@
                 
                     
                 
-            
-                
                     
-                
-            
-        
-            
-            
-                
-                    
-                        
-                        <h2 id="similar_posts">Similar Posts</h2>
-                        <ul>
-                        
-                        <li class="relatedPost">
-                            <a href="http://localhost:4000/2016/03/12/jekyll-theme-version-2.0/">对这个 jekyll 博客主题的改版和重构
-                            
-                            </a>
-                        </li>
-                        
-                        
-                    
-                
-            
-                
-                    
-                
-            
-                
-                    
-                
-            
-                
-                    
-                
-            
-                
-                    
-                
-            
-                
-                    
-                
-            
                 
                     
                 
@@ -310,11 +269,55 @@
                 
                     
                 
-            
+                    
                 
                     
                 
             
+                
+                    
+                
+                    
+                
+                    
+                
+            
+                
+                    
+                
+                    
+                
+                    
+                
+            
+                
+                    
+                
+                    
+                
+                    
+                
+            
+                
+                    
+                
+                    
+                
+                    
+                
+            
+                
+                    
+                
+                    
+                
+                    
+                
+            
+                
+                    
+                
+                    
                 
                     
                 
@@ -324,34 +327,69 @@
             
                 
                     
-                        
-                        <li class="relatedPost">
-                            <a href="http://localhost:4000/2015/02/16/create-my-blog-with-jekyll/">Jekyll 搭建静态博客
-                            
-                            </a>
-                        </li>
-                        
-                        
+                
+                    
+                
                     
                 
             
                 
                     
                 
+                    
+                
+                    
+                
+            
+                
+                    
+                
+                    
+                
+                    
+                
             
         
+            
+            
+                
+                    
+                
+                    
+                
+                    
+                
+            
+                
+                    
+                
+                    
+                
+                    
+                
+            
         
-            </ul>
+            
+            
+                
+                    
+                
+                    
+                
+                    
+                
+            
+        
         
 
         <div class="post-recent">
     <div class="pre">
         
+        <p><strong>上一篇</strong> <a href="/2017/04/23/codis-dual-datacenter/">redis切换双机房平滑迁移方案你好test</a></p>
+        
     </div>
     <div class="nex">
 
-        
-        <p><strong>下一篇</strong> <a href="/2015/02/16/create-my-blog-with-jekyll/">Jekyll 搭建静态博客</a></p>
         
     </div>
 </div>
@@ -369,8 +407,8 @@
      */
 
     var disqus_config = function() {
-        this.page.url = 'http://localhost:4000/2015/02/10/welcome-to-jekyll/'; // Replace PAGE_URL with your page's canonical URL variable
-        this.page.identifier = 'http://localhost:4000/2015/02/10/welcome-to-jekyll/'; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+        this.page.url = 'http://localhost:4000/2017/11/26/dubbo-zookeeper-problem/'; // Replace PAGE_URL with your page's canonical URL variable
+        this.page.identifier = 'http://localhost:4000/2017/11/26/dubbo-zookeeper-problem/'; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
     };
 
     (function() { // DON'T EDIT BELOW THIS LINE
