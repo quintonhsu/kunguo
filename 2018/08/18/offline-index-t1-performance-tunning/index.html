@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>离线指标T+1更新性能提升之路</title>
+    <meta name="description" content="">
+
+    <link rel="shortcut icon" href="/favicon.ico?" type="image/x-icon">
+    <link rel="icon" href="/favicon.ico?" type="image/x-icon">
+    <link rel="stylesheet" href="https://cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://at.alicdn.com/t/font_8v3czwksspqlg14i.css">
+    <link rel="stylesheet" href="/css/main.css ">
+    <link rel="canonical" href="http://localhost:4000/2018/08/18/offline-index-t1-performance-tunning/">
+    <link rel="alternate" type="application/rss+xml" title="锟哥火了" href="http://localhost:4000/feed.xml ">
+
+
+    <script>
+    // 百度统计代码
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?3045e5b986c9e81848aef66f38e05451";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+    </script>
+
+
+    <script>
+    // google analytics
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+      ga('create', 'UA-97223131-1', 'auto');
+      ga('send', 'pageview');
+
+    </script>
+
+
+
+</head>
+
+
+  <body>
+
+    <header id="top">
+    <div class="wrapper">
+        <a href="/" class="brand">锟哥火了</a>
+        <small>Welcome to Kunfire's Space</small>
+        <button id="headerMenu" class="menu"><i class="fa fa-bars"></i></button>
+        <nav id="headerNav">
+            <ul>
+                <li>
+                    
+                    <a href="/">
+                    
+                        <i class="fa fa-home"></i>Home
+                    </a>
+                </li>
+
+                
+                    
+                    <li>
+                        
+                        <a href="/archive/">
+                        
+                            <i class="fa fa-archive"></i>Archives
+                        </a>
+                    </li>
+                    
+                
+                    
+                    <li>
+                        
+                        <a href="/category/">
+                        
+                            <i class="fa fa-th-list"></i>Categories
+                        </a>
+                    </li>
+                    
+                
+                    
+                    <li>
+                        
+                        <a href="/tag/">
+                        
+                            <i class="fa fa-tags"></i>Tags
+                        </a>
+                    </li>
+                    
+                
+                    
+                    <li>
+                        
+                        <a href="/collection/">
+                        
+                            <i class="fa fa-bookmark"></i>Collections
+                        </a>
+                    </li>
+                    
+                
+                    
+                    <li>
+                        
+                        <a href="/demo/">
+                        
+                            <i class="fa fa-play"></i>Demo
+                        </a>
+                    </li>
+                    
+                
+                    
+                    <li>
+                        
+                        <a href="/about/">
+                        
+                            <i class="fa fa-heart"></i>About
+                        </a>
+                    </li>
+                    
+                
+                    
+                
+                    
+                
+                    
+                
+            </ul>
+        </nav>
+    </div>
+</header>
+
+
+        <div class="page clearfix" post>
+    <div class="left">
+        <h1>离线指标T+1更新性能提升之路</h1>
+        <div class="label">
+
+            <div class="label-card">
+                <i class="fa fa-calendar"></i>2018-08-18
+            </div>
+
+            <div class="label-card">
+                
+            </div>
+
+            <div class="label-card">
+                
+            </div>
+
+            <div class="label-card">
+            
+
+
+<!-- <span class="point">•</span> -->
+<span class="categories">
+  <i class="fa fa-th-list"></i>
+  
+    
+        <a href="/category/#Java性能调优" title="Category: Java性能调优" rel="category">Java性能调优</a>
+    
+  
+
+  <!-- <span class="point">•</span> -->
+</span>
+
+
+            </div>
+
+            <div class="label-card">
+            
+<!-- <span class="point">•</span> -->
+<span class="pageTag">
+  <i class="fa fa-tags"></i>
+  
+    
+        <!--a href="/tag/#%E7%BA%BF%E7%A8%8B%E6%B1%A0" title="Tag: 线程池" rel="tag">线程池</a-->
+        <a href="/tag/#线程池" title="Tag: 线程池" rel="tag">线程池</a>&nbsp;
+    
+        <!--a href="/tag/#jstack" title="Tag: jstack" rel="tag">jstack</a-->
+        <a href="/tag/#jstack" title="Tag: jstack" rel="tag">jstack</a>&nbsp;
+    
+        <!--a href="/tag/#WAITING" title="Tag: WAITING" rel="tag">WAITING</a-->
+        <a href="/tag/#WAITING" title="Tag: WAITING" rel="tag">WAITING</a>&nbsp;
+    
+        <!--a href="/tag/#HbaseScan" title="Tag: HbaseScan" rel="tag">HbaseScan</a-->
+        <a href="/tag/#HbaseScan" title="Tag: HbaseScan" rel="tag">HbaseScan</a>&nbsp;
+    
+        <!--a href="/tag/#%E5%A4%9A%E7%BA%BF%E7%A8%8B" title="Tag: 多线程" rel="tag">多线程</a-->
+        <a href="/tag/#多线程" title="Tag: 多线程" rel="tag">多线程</a>
+    
+  
+
+</span>
+
+            </div>
+
+        </div>
+        <hr>
+        <article itemscope itemtype="http://schema.org/BlogPosting">
+        <ul id="markdown-toc">
+  <li><a href="#一算子库对长名重复解析优化" id="markdown-toc-一算子库对长名重复解析优化">一、算子库对长名重复解析优化</a></li>
+  <li><a href="#二离线指标长名解析提前预热" id="markdown-toc-二离线指标长名解析提前预热">二、离线指标长名解析提前预热</a></li>
+  <li><a href="#三算子库每次都会去处理两个地方非常耗性能" id="markdown-toc-三算子库每次都会去处理两个地方非常耗性能">三、算子库每次都会去处理两个地方，非常耗性能</a></li>
+  <li><a href="#四simpledateformat类线程不安全造成1的指标计算结果有误" id="markdown-toc-四simpledateformat类线程不安全造成1的指标计算结果有误">四、SimpleDateFormat类线程不安全，造成1%的指标计算结果有误</a></li>
+  <li><a href="#五去掉关键点日志" id="markdown-toc-五去掉关键点日志">五、去掉关键点日志</a></li>
+  <li><a href="#六扩大dimmension线程性能提高了40" id="markdown-toc-六扩大dimmension线程性能提高了40">六、扩大dimmension线程，性能提高了40%</a></li>
+  <li><a href="#七jfr分析jmc工具优化相关的内存对象" id="markdown-toc-七jfr分析jmc工具优化相关的内存对象">七、jfr分析JMC工具，优化相关的内存对象</a></li>
+  <li><a href="#上线结果" id="markdown-toc-上线结果">上线结果：</a></li>
+  <li><a href="#调优总结" id="markdown-toc-调优总结">调优总结：</a></li>
+</ul>
+
+<p>背景：
+离线指标T+1是实时+离线的融合性方案，既依赖于每天增量的离线数据，也依赖于实时scan hbase并现算的过程。</p>
+
+<p>业务场景：对于某个模型的入参(即指标)进行hbase查询，获取结果后再进行计算，得到对应的指标值。具体说来，传入某个id(身份证)和模型里的比如30个指标，采用多线程，查询出每个hbase的结果并计算出对应的指标值。</p>
+
+<p>压测：随机挑选了100个指标，用5000组不同的id/mobile作为入参，查询并计算100个指标的值，看RT和吞吐量是否符合预期。经过压测后，发现平均RT居然需要230ms，即使每个指标都会scan数条hbase的rowkey, 那也不至于啊，不满足要求。</p>
+
+<p>性能优化了多处地方，感谢黄波和昌龙对我在优化过程中的一些支持和帮助，下面列出了一些提升比较明显的几步。</p>
+
+<h4 id="一算子库对长名重复解析优化">一、算子库对长名重复解析优化</h4>
+
+<p>       在指标平台调用整个算子库的生命周期中，有几处方法调用都会传入长名，使得长名的解析过程反复调用，通过review算子库代码，调整为只调用一次。再次压测，性能提高了10%。</p>
+
+<h4 id="二离线指标长名解析提前预热">二、离线指标长名解析提前预热</h4>
+
+<p>        离线指标的数量是可枚举的，在系统初始化时就加载所有的指标长名，把每个长名转换成hbase所需要的column列表，并做好映射，而不用每次传入长名都去转换，提高2~3毫秒RT。</p>
+
+<h4 id="三算子库每次都会去处理两个地方非常耗性能">三、算子库每次都会去处理两个地方，非常耗性能</h4>
+
+<p>        指标平台(Java)每次都会调用算子库(Scala)的calculate方法, 在代码review前，calculate的方法每次都会去new SimpleDateFormat对象，并且把一个包含行业信息size&gt;10000的Java List转换成Scala的List, 尤其是后者，100个指标中每个指标调用都会调用这个方法，非常耗时，如下:
+<img src="/assets/def1.png" alt="图片pic1" /></p>
+
+<p>业务上也没有必要每次调用，只需要构造函数时初始化一次即可，所以把SimpleDateFormat和Industry行业信息提炼出来：
+<img src="/assets/def2.png" alt="图片pic1" /></p>
+
+<p>再次压测，性能突然提高了7倍，主要是得益于Industry行业信息转换方式发生了变化，SimpleDateFormat的提炼只是减少了对象开销，性能上的提升一般。
+<img src="/assets/def5.png" alt="图片pic1" /></p>
+
+<h4 id="四simpledateformat类线程不安全造成1的指标计算结果有误">四、SimpleDateFormat类线程不安全，造成1%的指标计算结果有误</h4>
+
+<p>        对指标计算结果进行了对比，发现大概有1%的指标计算结果不太正常，通过日志，发现了许多异常：
+<img src="/assets/def6.png" alt="图片pic1" />
+在调用format.parse前打印出date的值，业务上每次都会传同一个值，没有问题。最开始还觉得SimpleDateFormat是一个很通用的时间工具类，应该不会不安全吧，后来发现这家伙调用parse的时候会调用calender这个共享变量，致使线程不安全。所以黄波同志作了threadLocal处理，解决之。</p>
+
+<h4 id="五去掉关键点日志">五、去掉关键点日志</h4>
+
+<p>        压测的时候发现总有个pid非常消耗CPU，有时会消耗掉20~30%的CPU，所以排查之。由于当时具体的pid和tid已忘记，下面仅仅是举个例，主要讲排查的方法和手段。</p>
+
+<ul>
+  <li>
+    <table>
+      <tbody>
+        <tr>
+          <td>ps -ef</td>
+          <td>grep java 获取当前Java进程号， 比如是12345</td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+  <li>top -Hp 12345  可查询pid=12345进程中哪个线程占用cpu过高，通过列表查看到消耗cpu最高的tid为24457</li>
+  <li>jstack -l 12345   » stack.log  把12345进程中所有的线程栈信息打印到某个日志文件</li>
+  <li>把24457转化为16进制，为0x5f89, 在stack.log里搜索5f89关键字，如下</li>
+</ul>
+
+<p><img src="/assets/def7.png" alt="图片pic1" />
+从日志可以看到，是graylog客户端通过socket发送日志到Gelf server，导致cpu消耗较大。由于在预发环境上压测在很多地方加了日志，用于判断每个步骤的耗时，所以产生了huge多的日志，把没必要的日志打印关闭，性能提升20%。</p>
+
+<p>经过前面几个步骤的优化，性能压测结果为：
+<img src="/assets/def8.png" alt="图片pic1" /></p>
+
+<h4 id="六扩大dimmension线程性能提高了40">六、扩大dimmension线程，性能提高了40%</h4>
+
+<p>        前面的优化步骤都是基于1个并发来进行压测，平均RT和99%RT基本达到要求，但吞吐量不足。于是加大了并发量，模拟5个并发用户请求。之前1个并发时获取指标的ThreadPoolExecutor线程池是100，由于是5个并发，线程池改为500个。</p>
+
+<p>本以为吞吐量立即会上来，但事实不是，经过几轮尝试，不管ThreadPoolExecutor设置100、200、或者500，吞吐量也没有明显提升，即使增大了hbase client的线程池，效果也不明显，排查之。</p>
+
+<ul>
+  <li>
+    <table>
+      <tbody>
+        <tr>
+          <td>ps -ef</td>
+          <td>grep java 获取当前Java进程号， 12345</td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+  <li>top -Hp 12345  查询pid=12345进程中所有的线程的cpu占用率都不高，均在0~1%之间，作为一个需要大量计算的系统，这个值显然不正常</li>
+  <li>jstack -l 12345   »  jstack.log  dump当前线程状态</li>
+</ul>
+
+<p>下图列出了整个业务流程调用路径中经过的主要线程池：
+<img src="/assets/def11.jpg" alt="图片pic1" /></p>
+
+<ol>
+  <li>
+    <p>tomcat线程池
+Springboot中默认内嵌的是tomcat server, 看了下tomcat源码，最小线程数是10，最大线程数是200，grep了jstack.log中的http-nio线程数，远不到200，也就是压测的力度较小，tomcat还没必要创建更多的线程来处理任务，所以吞吐量的瓶颈不在此线程池。</p>
+  </li>
+  <li>
+    <p>Call Dim线程池
+call dim线程池是用于多线程去处理不同的主维度，比如用户传来一个手机号和一个身份证，那么call dim线程池可以并行处理两个主维度，所以call dim线程数设置为2。通过观察jstack.log, 发现出现了大量调用callDim方法时的WAITTING状态，怀疑瓶颈出现在线程池。
+<img src="/assets/def12.jpg" alt="图片pic1" /></p>
+  </li>
+  <li>
+    <p>Call Index线程池
+call index线程池是用于多线程去处理划分主维度后每个指标的值。线程数设置的是500，通过观察jstack.log, 发现出现了少量调用call方法时的WAITTING状态, 要说是瓶颈应该还好。</p>
+  </li>
+  <li>
+    <p>Hbase Client线程池
+Hbase Client线程池用于查询hbase数据。线程数设置为500，通过观察jstack.log, 如下图，部分线程出现了take队列并且await的状态，说明队列中已经没有任务，线程处在空闲状态。另一方面，hbase的线程池队列是SynchronousQueue，如果workingThread一旦超过500，日志也会报RejectedExecutionException，但日志也正常。所以综合两方面，该线程池也没问题。
+<img src="/assets/def13.jpg" alt="图片pic1" /></p>
+  </li>
+</ol>
+
+<p>综合下来，应该是第二步Call Dim线程池设置过小，导致吞吐量低，所以开大该线程池，cpu利用率明显提升，再次压测性能提升40%</p>
+
+<h4 id="七jfr分析jmc工具优化相关的内存对象">七、jfr分析JMC工具，优化相关的内存对象</h4>
+
+<p>        通过jstat -gcutil 12345 1000查看到虽然没有触发FGC，但是YGC比较频繁，想分析下哪些对象比较消耗内存。导出当前JFR文件，产生文件12345.jfr。用JMC分析12345.jfr文件，看了下调用栈，发现有两处比较明显的消耗内存的地方。</p>
+
+<ul>
+  <li>
+    <p>计算每个指标的时候都会重复split，压测导致消耗了1~2G内存：
+<img src="/assets/def9.jpg" alt="图片pic1" /></p>
+
+    <p>修改即可：<img src="/assets/def10.jpg" alt="图片pic1" /></p>
+  </li>
+  <li>
+    <p>每个指标获取值时嵌套for循环重复往map里面put对象，这个在上游代码中是可以避免这个问题的，不上代码了，说多了都是泪</p>
+  </li>
+</ul>
+
+<p>两处代码优化后，再次压测，性能提升5%左右</p>
+
+<h4 id="上线结果">上线结果：</h4>
+<p>目前离线指标T+1已上线一周，运行较稳定。重点观察了一个合作方的调用，上海六台机器，某个时刻总的TPS为91, rt_p999在20毫秒以内。
+<img src="/assets/def14.png" alt="图片pic1" /></p>
+
+<h3 id="调优总结">调优总结：</h3>
+
+<p>1、打印日志适可而止，即使异步写日志，量大的情况还是比较耗资源的</p>
+
+<p>2、循环或者嵌套循环一定要注意大对象的重复生成</p>
+
+<p>3、系统中的线程池设置一定要根据业务场景和cpu数综合判断，设置时要慎重。</p>
+
+<p>4 、jstack里的线程状态要搞清楚，比如什么WATING\TIMED_WATING\BLOCKED的区别，即使是WAITING，也要清楚是什么导致等待，是空闲的线程在等待任务的到来，还是某个线程在等待FutureTask完成后的唤醒，这对于判断线程的真实状态很有帮助。</p>
+
+        </article>
+        <hr>
+
+        
+        
+            
+            
+                
+                    
+                
+                    
+                
+                    
+                
+                    
+                
+                    
+                
+            
+                
+                    
+                
+                    
+                
+                    
+                
+                    
+                
+                    
+                
+            
+                
+                    
+                
+                    
+                
+                    
+                
+                    
+                
+                    
+                
+            
+        
+            
+            
+                
+                    
+                
+                    
+                
+                    
+                
+                    
+                
+                    
+                
+            
+                
+                    
+                
+                    
+                
+                    
+                
+                    
+                
+                    
+                
+            
+                
+                    
+                
+                    
+                
+                    
+                
+                    
+                
+                    
+                
+            
+        
+        
+
+        <div class="post-recent">
+    <div class="pre">
+        
+        <p><strong>上一篇</strong> <a href="/2017/11/25/dubbo-zookeeper-problem/">Dubbo控制台与zookeeper状态不符问题排查</a></p>
+        
+    </div>
+    <div class="nex">
+
+        
+    </div>
+</div>
+
+
+        <h2 id="comments">Comments</h2>
+        
+
+
+<div id="disqus_thread"></div>
+<script>
+    /**
+     * RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+     * LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables
+     */
+
+    var disqus_config = function() {
+        this.page.url = 'http://localhost:4000/2018/08/18/offline-index-t1-performance-tunning/'; // Replace PAGE_URL with your page's canonical URL variable
+        this.page.identifier = 'http://localhost:4000/2018/08/18/offline-index-t1-performance-tunning/'; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+    };
+
+    (function() { // DON'T EDIT BELOW THIS LINE
+        var d = document,
+            s = d.createElement('script');
+
+        s.src = '//quintonhsu.disqus.com/embed.js';
+
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+
+
+
+
+    </div>
+    <button class="anchor"><i class="fa fa-anchor"></i></button>
+    <div class="right">
+        <div class="wrap">
+
+            <!-- Content -->
+            <div class="side content">
+                <div>
+                    Content
+                </div>
+                <ul id="content-side" class="content-ul">
+                    <li><a href="#similar_posts">Similar Posts</a></li>
+                    <li><a href="#comments">Comments</a></li>
+                </ul>
+            </div>
+            <!-- 其他div框放到这里 -->
+            <!-- <div class="side">bbbb</div> -->
+        </div>
+    </div>
+</div>
+<script>
+/**
+ * target _blank
+ */
+(function() {
+    var aTags = document.querySelectorAll('article a:not([id])')
+    for (var i = 0; i < aTags.length; i++) {
+        aTags[i].setAttribute('target', '_blank')
+    }
+}());
+</script>
+<script src="/js/pageContent.js " charset="utf-8"></script>
+
+
+    <footer class="site-footer">
+
+
+    <div class="wrapper">
+
+        <p class="description">
+             本站记录后端技术的心路历程！ 
+        </p>
+        <p class="contact">
+            Contact me at: 
+            <a href="https://github.com/quintonhsu" title="GitHub"><i class="fa fa-github" aria-hidden="true"></i></a>  
+            <a href="mailto:xukunddp#gmail.com" title="email"><i class="fa fa-envelope-o" aria-hidden="true"></i></a>    
+            <a href="https://twitter.com/quintonhsu" title="Twitter"><i class="fa fa-twitter" aria-hidden="true"></i></a>  
+            <a href="https://www.facebook.com/quintonhsu" title="Facebook"><i class="fa fa-facebook-official" aria-hidden="true"></i></a>   
+            <a href="https://www.linkedin.com/in/quinton-hsu-11672630" title="LinkedIn"><i class="fa fa-linkedin" aria-hidden="true"></i></a>  
+        </p>
+        <p>
+            本站总访问量<span id="busuanzi_value_site_pv"></span>次，本站访客数<span id="busuanzi_value_site_uv"></span>人次，本文总阅读量<span id="busuanzi_value_page_pv"></span>次
+        </p>
+        <p class="power">
+            <span>
+                Site powered by <a href="https://jekyllrb.com/">Jekyll</a> & <a href="https://pages.github.com/">Github Pages</a>.
+            </span>
+            <span>
+                Theme designed by <a href="https://github.com/Gaohaoyang">HyG</a>.
+            </span>
+        </p>
+    </div>
+</footer>
+<script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+    <div class="back-to-top">
+    <a href="#top" data-scroll>
+        <i class="fa fa-arrow-up" aria-hidden="true"></i>
+    </a>
+</div>
+
+    <script src=" /js/main.js " charset="utf-8"></script>
+    <script src=" /js/smooth-scroll.min.js " charset="utf-8"></script>
+    <script type="text/javascript">
+      smoothScroll.init({
+        speed: 500, // Integer. How fast to complete the scroll in milliseconds
+        easing: 'easeInOutCubic', // Easing pattern to use
+        offset: 20, // Integer. How far to offset the scrolling anchor location in pixels
+      });
+    </script>
+    <!-- <script src=" /js/scroll.min.js " charset="utf-8"></script> -->
+  </body>
+
+</html>
