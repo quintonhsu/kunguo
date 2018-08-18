@@ -6,15 +6,15 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>redis切换双机房平滑迁移方案</title>
-    <meta name="description" content="">
+    <title>Java中那些不同场景的执行时间汇总</title>
+    <meta name="description" content="公司是一家对RT要求比较高的公司，如果每个场景和流程我们都能知晓大致的执行时间，那么对于程序设计或者排查问题还有很有帮助的。下面我列出了一些经常出现，又比较重要场景的执行时间，大家也可以补充。周末在家把相关的数据基本测试过，再结合以前的经验，数据基本靠谱。">
 
     <link rel="shortcut icon" href="/favicon.ico?" type="image/x-icon">
     <link rel="icon" href="/favicon.ico?" type="image/x-icon">
     <link rel="stylesheet" href="https://cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css">
     <link rel="stylesheet" href="https://at.alicdn.com/t/font_8v3czwksspqlg14i.css">
     <link rel="stylesheet" href="/css/main.css ">
-    <link rel="canonical" href="http://localhost:4000/2017/04/23/codis-dual-datacenter/">
+    <link rel="canonical" href="http://localhost:4000/2018/08/18/java-exe-time/">
     <link rel="alternate" type="application/rss+xml" title="锟哥火了" href="http://localhost:4000/feed.xml ">
 
 
@@ -139,11 +139,11 @@
 
         <div class="page clearfix" post>
     <div class="left">
-        <h1>redis切换双机房平滑迁移方案</h1>
+        <h1>Java中那些不同场景的执行时间汇总</h1>
         <div class="label">
 
             <div class="label-card">
-                <i class="fa fa-calendar"></i>2017-04-23
+                <i class="fa fa-calendar"></i>2018-08-18
             </div>
 
             <div class="label-card">
@@ -163,7 +163,7 @@
   <i class="fa fa-th-list"></i>
   
     
-        <a href="/category/#架构/解决方案" title="Category: 架构/解决方案" rel="category">架构/解决方案</a>
+        <a href="/category/#Java" title="Category: Java" rel="category">Java</a>
     
   
 
@@ -180,14 +180,11 @@
   <i class="fa fa-tags"></i>
   
     
-        <!--a href="/tag/#redis" title="Tag: redis" rel="tag">redis</a-->
-        <a href="/tag/#redis" title="Tag: redis" rel="tag">redis</a>&nbsp;
+        <!--a href="/tag/#%E6%89%A7%E8%A1%8C%E6%97%B6%E9%97%B4" title="Tag: 执行时间" rel="tag">执行时间</a-->
+        <a href="/tag/#执行时间" title="Tag: 执行时间" rel="tag">执行时间</a>&nbsp;
     
-        <!--a href="/tag/#%E5%8F%8C%E6%9C%BA%E6%88%BF" title="Tag: 双机房" rel="tag">双机房</a-->
-        <a href="/tag/#双机房" title="Tag: 双机房" rel="tag">双机房</a>&nbsp;
-    
-        <!--a href="/tag/#%E5%B9%B3%E6%BB%91%E8%BF%81%E7%A7%BB" title="Tag: 平滑迁移" rel="tag">平滑迁移</a-->
-        <a href="/tag/#平滑迁移" title="Tag: 平滑迁移" rel="tag">平滑迁移</a>
+        <!--a href="/tag/#java" title="Tag: java" rel="tag">java</a-->
+        <a href="/tag/#java" title="Tag: java" rel="tag">java</a>
     
   
 
@@ -198,7 +195,55 @@
         </div>
         <hr>
         <article itemscope itemtype="http://schema.org/BlogPosting">
-        
+        <ul id="markdown-toc">
+  <li><a href="#一java基本操作" id="markdown-toc-一java基本操作">一、Java基本操作</a></li>
+  <li><a href="#二网络相关" id="markdown-toc-二网络相关">二、网络相关</a></li>
+  <li><a href="#三io相关" id="markdown-toc-三io相关">三、IO相关</a></li>
+  <li><a href="#四jvm相关" id="markdown-toc-四jvm相关">四、JVM相关</a></li>
+</ul>
+
+<p>公司是一家对RT要求比较高的公司，如果每个场景和流程我们都能知晓大致的执行时间，那么对于程序设计或者排查问题还有很有帮助的。</p>
+
+<p>下面我列出了一些经常出现，又比较重要场景的执行时间，大家也可以补充。周末在家把相关的数据基本测试过，再结合以前的经验，数据基本靠谱。</p>
+
+<h2 id="一java基本操作">一、Java基本操作</h2>
+
+<ul>
+  <li>一次整型、浮点型赋值： 纳秒级</li>
+  <li>一次字符串赋值：<strong>微秒级</strong></li>
+  <li>一次字符串的拼接：<strong>微秒级</strong> 至少上百微秒</li>
+  <li>new一个对象: <strong>微秒级</strong></li>
+  <li>一次if else判断： 纳秒级</li>
+  <li>一次与、非、移位运算： 纳秒级</li>
+  <li>一次加减乘除:  纳秒级</li>
+  <li>for循环遍历元素之间的间隔： 纳秒级</li>
+  <li>一次异常捕获的时间：<strong>微秒级</strong>  一般几十微秒</li>
+  <li>隐式锁加锁时间：纳秒级</li>
+  <li>显示锁加锁时间：<strong>微秒级</strong></li>
+</ul>
+
+<p>字体加粗的微秒级的操作要注意了，尤其是在for循环中</p>
+
+<h2 id="二网络相关">二、网络相关</h2>
+<ul>
+  <li>一次serverSocket初始化时间：毫秒级: 一般几毫秒</li>
+  <li>一次rpc： 毫秒级 一般4毫秒以内</li>
+  <li>一次序列化时间：微秒或纳秒级</li>
+</ul>
+
+<h2 id="三io相关">三、IO相关</h2>
+<ul>
+  <li>一次读取内存和写内存的时间:  微秒级  一般1~100微秒</li>
+  <li>访问一次机械硬盘时间： 毫秒级</li>
+  <li>访问一次SSD硬盘时间：微秒级</li>
+</ul>
+
+<h2 id="四jvm相关">四、JVM相关</h2>
+<ul>
+  <li>一次ygc：毫秒级  一般几十毫秒</li>
+  <li>一次fgc：毫秒级或秒级</li>
+</ul>
+
 
         </article>
         <hr>
@@ -212,22 +257,7 @@
                 
                     
                 
-                    
-                
             
-                
-                    
-                
-                    
-                
-                    
-                
-            
-        
-            
-            
-                
-                    
                 
                     
                 
@@ -239,27 +269,13 @@
                 
                     
                 
-                    
-                
             
                 
                     
                 
                     
                 
-                    
-                
             
-                
-                    
-                
-                    
-                
-                    
-                
-            
-                
-                    
                 
                     
                 
@@ -274,6 +290,10 @@
                 
                     
                 
+            
+                
+                    
+                
                     
                 
             
@@ -282,11 +302,22 @@
                 
                     
                 
+            
+        
+            
+            
+                
+                    
+                
                     
                 
             
                 
                     
+                
+                    
+                
+            
                 
                     
                 
@@ -299,11 +330,11 @@
         <div class="post-recent">
     <div class="pre">
         
+        <p><strong>上一篇</strong> <a href="/2018/08/18/offline-index-t1-performance-tunning/">离线指标T+1更新性能提升之路</a></p>
+        
     </div>
     <div class="nex">
 
-        
-        <p><strong>下一篇</strong> <a href="/2017/11/25/dubbo-zookeeper-problem/">Dubbo控制台与zookeeper状态不符问题排查</a></p>
         
     </div>
 </div>
@@ -321,8 +352,8 @@
      */
 
     var disqus_config = function() {
-        this.page.url = 'http://localhost:4000/2017/04/23/codis-dual-datacenter/'; // Replace PAGE_URL with your page's canonical URL variable
-        this.page.identifier = 'http://localhost:4000/2017/04/23/codis-dual-datacenter/'; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+        this.page.url = 'http://localhost:4000/2018/08/18/java-exe-time/'; // Replace PAGE_URL with your page's canonical URL variable
+        this.page.identifier = 'http://localhost:4000/2018/08/18/java-exe-time/'; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
     };
 
     (function() { // DON'T EDIT BELOW THIS LINE
