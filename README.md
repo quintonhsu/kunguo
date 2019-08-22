@@ -22,7 +22,7 @@ With the escalation of jekyll version, but I also want to reconstruct my older b
     * [Tags](#tags)
     * [Collections](#collections)
     * [Demo](#demo)
-    * [About](#about)
+    * [Aboutme](#aboutme)
     * [Comments](#comments)
     * [Post Contents](#post-contents)
     * [Code Highlight](#code-highlight)
@@ -81,7 +81,7 @@ The user can collect their favorite article links with `markdown` syntax.
 
 I use *[Masonry](http://masonry.desandro.com/)* to rewrite the waterfall responsive layout. Better interactive experience.
 
-### About
+### Aboutme
 
 The user can write some introduction about theirselves and their site with `markdown` syntax.
 

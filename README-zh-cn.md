@@ -20,7 +20,7 @@
     * [标签页 Tags](#标签页-tags)
     * [收藏页 Collections](#收藏页-collections)
     * [展示页 Demo](#展示页-demo)
-    * [关于页 About](#关于页-about)
+    * [关于页 Aboutme](#关于页-aboutme)
     * [评论](#评论)
     * [目录 Contents](#目录-contents)
     * [代码高亮](#代码高亮)
@@ -79,7 +79,7 @@
 
 使用 [Masonry](http://masonry.desandro.com/) 重写了瀑布流布局，响应式布局，更好的交互体验。
 
-### 关于页 About
+### 关于页 Aboutme
 
 对个人和对本站的介绍，使用`markdown`写的。
 
